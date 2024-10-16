@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="/app-icon.svg" />
+    <link rel="stylesheet" href="/main.css" />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"
+      crossorigin="anonymous"
+      referrerpolicy="no-referrer"
+    />
+    <link
+      href="https://api.mapbox.com/mapbox-gl-js/v2.15.0/mapbox-gl.css"
+      rel="stylesheet"
+    />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content="Restaurant App" />
+    <link
+      rel="apple-touch-icon"
+      href="/icons/icon-192x192.png"
+      sizes="192x192"
+    />
+    <meta name="theme-color" content="#ffffff" />
+    <meta
+      name="apple-mobile-web-app-status-bar-style"
+      content="black-translucent"
+    />
+    <link rel="manifest" href="/manifest.webmanifest" />
+    <script type="module" src="/src/main.ts"></script>
+    <title>Restaurant App</title>
+  </head>
+
+  <body class="light-theme">
+    <!-- Kirjautumisdialogi ja profiili -->
+    <div id="login-dialog" class="modal">
+      <div class="modal-content">
+        <span class="close-button" id="close-login-dialog">&times;</span>
+        <h2>Kirjaudu sisään</h2>
+        <form id="login-form">
+          <div class="form-control">
+            <input id="username" type="text" name="username" required />
+            <label for="username">Käyttäjänimi</label>
+          </div>
+          <div class="form-control">
+            <input id="password" type="password" name="password" required />
+            <label for="password">Salasana</label>
+          </div>
+          <div class="form-control">
+            <input type="submit" value="Kirjaudu" class="button" />
+          </div>
+        </form>
+
+        <!-- Profiili-näkymä -->
+        <h2>Profiili</h2>
+        <div id="profile">
+          <p>Käyttäjänimi: <span id="username-target"></span></p>
+          <p>Sähköposti: <span id="email-target"></span></p>
+          <img id="avatar-target" src="" alt="Avatar" />
+        </div>
+
+        <h2>Muokkaa profiilia</h2>
+        <form id="profile-form">
+          <div class="form-control">
+            <input id="profile-username" type="text" name="username" />
+            <label for="profile-username">Käyttäjänimi</label>
+          </div>
+          <div class="form-control">
+            <input id="profile-email" type="email" name="email" />
+            <label for="profile-email">Sähköposti</label>
+          </div>
+          <div class="form-control">
+            <input type="submit" value="Päivitä" class="button" />
+          </div>
+        </form>
+
+        <h2>Lataa profiilikuva</h2>
+        <form id="avatar-form">
+          <div class="form-control">
+            <input id="avatar" type="file" name="avatar" />
+            <label for="avatar">Valitse kuva</label>
+          </div>
+          <div class="form-control">
+            <input type="submit" value="Lataa" class="button" />
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <div id="menuModal" class="modal">
+      <div class="modal-content">
+        <span class="close-button" id="close-menu-modal">&times;</span>
+        <div id="menuModalContent">
+          <!-- Valikon sisältö -->
+        </div>
+      </div>
+    </div>
+
+    <div id="favoriteModal" class="modal">
+      <div class="modal-content">
+        <span class="close-button" id="close-favorite-modal">&times;</span>
+        <div id="favoriteModalContent">
+          <!-- Suosikki-modal sisältö -->
+        </div>
+      </div>
+    </div>
+
+    <!-- Pääsivun sisältö -->
+    <header class="header">
+      <h1 class="site-title">Opiskelija ravintolat</h1>
+
+      <div class="header-controls">
+        <div class="header-left">
+          <div class="filter-buttons">
+            <button id="sodexo-filter" class="filter-button active">
+              Sodexo
+            </button>
+            <button id="compass-filter" class="filter-button active">
+              Compass Group
+            </button>
+          </div>
+        </div>
+
+        <div class="header-right">
+          <button id="login-button" class="button">Kirjaudu sisään</button>
+
+          <div class="theme-slider-wrapper">
+            <i class="fas fa-moon theme-icon"></i>
+            <div class="theme-slider">
+              <input type="checkbox" id="theme-toggle" class="slider" />
+              <label for="theme-toggle" class="slider-label">
+                <span class="slider-ball"></span>
+              </label>
+            </div>
+          </div>
+        </div>
+      </div>
+    </header>
+
+    <main class="main-content">
+      <!-- Kartta -->
+      <section class="map-section">
+        <div id="map"></div>
+      </section>
+    </main>
+
+    <!-- Mapboxin JavaScript -->
+    <script src="https://api.mapbox.com/mapbox-gl-js/v2.15.0/mapbox-gl.js"></script>
+    <script type="module" src="/src/map.ts"></script>
+    <!-- Footeri -->
+    <footer class="footer">
+      <p>&copy; 2024 Samu</p>
+    </footer>
+
+    <script>
+      const themeToggleButton = document.getElementById('theme-toggle');
+      const savedTheme = localStorage.getItem('theme');
+
+      // Jos teemaa on tallennettu localStorageen, käytetään sitä
+      if (savedTheme) {
+        document.body.classList.remove('light-theme', 'dark-theme');
+        document.body.classList.add(savedTheme);
+        themeToggleButton.checked = savedTheme === 'dark-theme';
+      }
+
+      // Teeman vaihtaminen
+      themeToggleButton.addEventListener('change', () => {
+        if (themeToggleButton.checked) {
+          document.body.classList.remove('light-theme');
+          document.body.classList.add('dark-theme');
+          localStorage.setItem('theme', 'dark-theme');
+        } else {
+          document.body.classList.remove('dark-theme');
+          document.body.classList.add('light-theme');
+          localStorage.setItem('theme', 'light-theme');
+        }
+      });
+    </script>
+  </body>
+</html>
